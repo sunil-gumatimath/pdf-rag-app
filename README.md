@@ -181,6 +181,16 @@ results = db.search(query_vector=my_vector, top_k=5)
 uv run uvicorn main:app --reload
 ```
 
+### Start the Inngest Dev Server
+
+In a separate terminal, run the Inngest CLI to connect to the local server and process events:
+
+```bash
+npx inngest-cli@latest dev -u http://127.0.0.1:8000/api/inngest --no-discovery
+```
+
+The `--no-discovery` flag disables automatic function discovery and points the Inngest dev server directly at the FastAPI app.
+
 ### Activate Virtual Environment Manually
 
 ```bash
