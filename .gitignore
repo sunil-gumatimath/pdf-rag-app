@@ -1,32 +1,75 @@
 # Python-generated files
 __pycache__/
 *.py[oc]
+*$py.class
 build/
 dist/
 wheels/
-*.egg-info
+site/
+.eggs/
+*.egg
+*.egg-info/
+pip-wheel-metadata/
 
 # Virtual environments
-.venv
+.venv/
+venv/
+env/
+ENV/
 
-# Environment variables
+# Environment variables and local secrets
 .env
 .env.*
 !.env.example
 
-# Qdrant local storage
+# Local application data
 qdrant_storage/
+uploads/
+rate_limit.db
+rate_limit.db-shm
+rate_limit.db-wal
+.rate_limit.sqlite3
+.rate_limit.sqlite3-shm
+.rate_limit.sqlite3-wal
+*.sqlite
+*.sqlite3
+*.db
+
+# Logs and runtime artifacts
+*.log
+logs/
+*.pid
+*.pid.lock
+*.out
+*.err
+
+# Test and coverage artifacts
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.pyre/
+.ruff_cache/
+.hypothesis/
+
+# Type checker / notebook artifacts
+.ipynb_checkpoints/
 
 # IDE folders
 .idea/
 .vscode/
 *.suo
 *.user
+*.userossc
+*.sln.docstates
 
 # OS files
 .DS_Store
 Thumbs.db
+Desktop.ini
 
 # uv
 .uv/
-uv.lock
