@@ -191,6 +191,16 @@ npx inngest-cli@latest dev -u http://127.0.0.1:8000/api/inngest --no-discovery
 
 The `--no-discovery` flag disables automatic function discovery and points the Inngest dev server directly at the FastAPI app.
 
+### Start the Streamlit UI
+
+In a separate terminal, launch the Streamlit frontend:
+
+```bash
+uv run streamlit run .\streamlit_app.py
+```
+
+The UI will be available at `http://localhost:8501`.
+
 ### Activate Virtual Environment Manually
 
 ```bash
