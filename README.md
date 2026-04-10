@@ -1,33 +1,33 @@
-# 📄 PDF RAG Application
+# PDF RAG Application
 
 A **Retrieval-Augmented Generation (RAG)** pipeline that ingests PDF documents, chunks and embeds them using Google Gemini, stores vectors in Qdrant, and exposes an async API via FastAPI + Inngest.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 PDF File
-   │
-   ▼
+   |
+   v
 PDFReader (LlamaIndex)
-   │  extract text
-   ▼
+   |  extract text
+   v
 SentenceSplitter
-   │  chunk text (1000 tokens, overlap 1)
-   ▼
+   |  chunk text (1000 tokens, overlap 1)
+   v
 Google Gemini Embeddings (gemini-embedding-001, 3072-dim)
-   │
-   ▼
+   |
+   v
 Qdrant Vector Store (localhost:6333)
-   │
-   ▼
+   |
+   v
 FastAPI + Inngest (event-driven ingestion pipeline)
 ```
 
 ---
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```
 pdf-rag-application/
@@ -42,22 +42,22 @@ pdf-rag-application/
 
 ---
 
-## ⚙️ Tech Stack
+## Tech Stack
 
-| Layer | Tool |
-|---|---|
-| API Framework | [FastAPI](https://fastapi.tiangolo.com/) |
-| Event Queue | [Inngest](https://www.inngest.com/) |
-| PDF Parsing | [LlamaIndex PDFReader](https://docs.llamaindex.ai/) |
-| Text Chunking | LlamaIndex SentenceSplitter |
-| Embeddings | [Google Gemini](https://ai.google.dev/) (`gemini-embedding-001`) |
-| Vector Store | [Qdrant](https://qdrant.tech/) |
-| Data Validation | [Pydantic](https://docs.pydantic.dev/) |
-| Package Manager | [uv](https://github.com/astral-sh/uv) |
+| Layer            | Tool                                                                 |
+|------------------|----------------------------------------------------------------------|
+| API Framework    | [FastAPI](https://fastapi.tiangolo.com/)                             |
+| Event Queue      | [Inngest](https://www.inngest.com/)                                  |
+| PDF Parsing      | [LlamaIndex PDFReader](https://docs.llamaindex.ai/)                  |
+| Text Chunking    | LlamaIndex SentenceSplitter                                          |
+| Embeddings       | [Google Gemini](https://ai.google.dev/) (`gemini-embedding-001`)     |
+| Vector Store     | [Qdrant](https://qdrant.tech/)                                       |
+| Data Validation  | [Pydantic](https://docs.pydantic.dev/)                               |
+| Package Manager  | [uv](https://github.com/astral-sh/uv)                               |
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -68,20 +68,20 @@ pdf-rag-application/
 
 ---
 
-### 1. Clone the repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/sunil-gumatimath/pdf-rag-app.git
 cd pdf-rag-app
 ```
 
-### 2. Install dependencies
+### 2. Install Dependencies
 
 ```bash
 uv sync
 ```
 
-### 3. Set up environment variables
+### 3. Set Up Environment Variables
 
 Create a `.env` file in the project root:
 
@@ -102,7 +102,7 @@ docker run -d --name qdrant -p 6333:6333 -v "${PWD}/qdrant_storage:/qdrant/stora
 docker run -d --name qdrant -p 6333:6333 -v "%cd%/qdrant_storage:/qdrant/storage" qdrant/qdrant
 ```
 
-### 5. Start the server
+### 5. Start the Server
 
 ```bash
 uv run uvicorn main:app --reload
@@ -112,7 +112,7 @@ The API will be available at `http://localhost:8000`.
 
 ---
 
-## 📡 API Usage
+## API Usage
 
 ### Ingest a PDF
 
@@ -132,36 +132,36 @@ curl -X POST http://localhost:8000/api/inngest \
 
 **Event payload fields:**
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `pdf_path` | `string` | ✅ | Path to the PDF file on disk |
-| `source_id` | `string` | ❌ | Identifier for the source (defaults to `pdf_path`) |
+| Field       | Type     | Required | Description                                          |
+|-------------|----------|----------|------------------------------------------------------|
+| `pdf_path`  | `string` | Yes      | Path to the PDF file on disk                         |
+| `source_id` | `string` | No       | Identifier for the source (defaults to `pdf_path`)   |
 
 ---
 
-## 🧩 Pydantic Models
+## Pydantic Models
 
-| Model | Fields | Description |
-|---|---|---|
-| `RAGChunkAndSrc` | `chunks: list[str]`, `source_id: str \| None` | Chunked text with source reference |
-| `RAGUpsertResult` | `ingested: int` | Number of chunks ingested |
-| `RAGSearchResult` | `contexts: list[str]`, `sources: list[str]` | Retrieved context chunks and sources |
-| `RAGQueryResult` | `answer: str`, `sources: list[str]`, `num_contexts: int` | Final answer with metadata |
+| Model            | Fields                                               | Description                            |
+|------------------|------------------------------------------------------|----------------------------------------|
+| `RAGChunkAndSrc` | `chunks: list[str]`, `source_id: str \| None`        | Chunked text with source reference     |
+| `RAGUpsertResult`| `ingested: int`                                      | Number of chunks ingested              |
+| `RAGSearchResult`| `contexts: list[str]`, `sources: list[str]`          | Retrieved context chunks and sources   |
+| `RAGQueryResult` | `answer: str`, `sources: list[str]`, `num_contexts: int` | Final answer with metadata         |
 
 ---
 
-## 🔄 Ingestion Pipeline
+## Ingestion Pipeline
 
 The ingestion is handled as a two-step Inngest function (`RAG: Ingest PDF`):
 
-1. **`load_and_chunk`** — Reads the PDF, extracts text, splits into chunks of 1000 tokens
-2. **`embed_and_upsert`** — Embeds each chunk using Gemini, generates deterministic UUIDs, and upserts into Qdrant
+1. **load_and_chunk** — Reads the PDF, extracts text, and splits it into chunks of 1000 tokens with an overlap of 1.
+2. **embed_and_upsert** — Embeds each chunk using Gemini, generates deterministic UUIDs per chunk, and upserts the vectors into Qdrant.
 
 ---
 
-## 🔍 Vector Search
+## Vector Search
 
-The `QdrantStorage.search()` method accepts a query vector and returns the top-k most similar chunks with their source metadata:
+The `QdrantStorage.search()` method accepts a query vector and returns the top-k most similar chunks along with their source metadata:
 
 ```python
 from vector_db import QdrantStorage
@@ -173,15 +173,15 @@ results = db.search(query_vector=my_vector, top_k=5)
 
 ---
 
-## 🛠️ Development
+## Development
 
-### Run with auto-reload
+### Run with Auto-reload
 
 ```bash
 uv run uvicorn main:app --reload
 ```
 
-### Activate virtual environment manually
+### Activate Virtual Environment Manually
 
 ```bash
 # Windows CMD
@@ -193,7 +193,7 @@ uv run uvicorn main:app --reload
 
 ---
 
-## 📦 Dependencies
+## Dependencies
 
 ```toml
 fastapi >= 0.133.1
@@ -209,9 +209,6 @@ uvicorn >= 0.41.0
 
 ---
 
-## 📝 License
+## License
 
 This project is for educational and personal use.
-```
-
-Now let me save it and push it to GitHub:
