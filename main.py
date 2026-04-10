@@ -85,7 +85,7 @@ async def rag_query_pdf_ai(ctx: inngest.Context):
             "Answer concisely using the context above."
         )
         response = gemini_client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3-flash-preview",
             contents=user_content,
             config=types.GenerateContentConfig(
                 system_instruction="Answer questions using only the provided context.",
